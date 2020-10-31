@@ -1,3 +1,4 @@
+const Employee = require("./lib/Employee");
 const Manager = require("./lib/Manager");
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
@@ -45,46 +46,74 @@ const addEmployee = {
 };
 
 const ifManager = {
-    name: "manager",
+    name: "officeNumber",
     type: "input",
     message: "What is the Manager's office number?"
 };
 
 const ifEngineer = {
-    name: "engineer",
+    name: "github",
     type: "input",
     message: "What is the engineer's github?"
 };
 
 const ifIntern = {
-    name: "intern",
+    name: "school",
     type: "input",
     message: "What school does the intern attend?"
+};
+
+const employees = [];
+
+function writeToHTML() { 
+    let html = render(employees);
+    fs.writeFile(outputPath, html, () => console.log("Wrote to file."));
 };
 
 function start() {
     inquirer.prompt(questions)
         .then(function(answers) {
             if (answers.member === "Manager") {
-                inquirer.prompt(ifManager && addEmployee)
-                .then(function(answers) {
-                    if (answers.add === "NO") {
-                    connection.end();
-                }});
+                inquirer.prompt([ifManager, addEmployee])
+                .then(function(data) {
+                    employees.push(new Manager(answers.name, answers.id, answers.email, data.officeNumber));
+                    if (data.add === "YES") {
+                        console.log(employees);
+                        writeToHTML() 
+                        start();
+                    } else {
+                        writeToHTML() 
+                        return;
+                    }
+                });
             } else if (answers.member === "Engineer") {
-                inquirer.prompt(ifManager && addEmployee)
-                .then(function(answers) {
-                    if (answers.add === "NO") {
-                    connection.end();
-                }});
+                inquirer.prompt([ifEngineer, addEmployee])
+                .then(function(data) {
+                    employees.push(new Engineer(answers.name, answers.id, answers.email, data.github));
+                    if (data.add === "YES") {
+                        console.log(employees);
+                        writeToHTML() 
+                        start();
+                    } else {
+                        writeToHTML() 
+                        return;
+                    }
+                });
             } else if (answers.member === "Intern") {
-                inquirer.prompt(ifManager && addEmployee)
-                .then(function(answers) {
-                    if (answers.add === "NO") {
-                    connection.end();
-                }});
-            }}
-        )
+                inquirer.prompt([ifIntern, addEmployee])
+                .then(function(data) {
+                    employees.push(new Intern(answers.name, answers.id, answers.email, data.school));
+                    if (data.add === "YES") {
+                        console.log(employees);
+                        writeToHTML() 
+                        start();
+                    } else {
+                        writeToHTML() 
+                        return;
+                    }
+                });
+            }
+        })
     };
 
 start();
